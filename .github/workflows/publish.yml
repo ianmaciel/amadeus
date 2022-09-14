@@ -4,6 +4,10 @@ on:
   release:
     types: [published]
 
+  push:
+    branches:
+      - master
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -20,7 +24,7 @@ jobs:
           "refreshToken":"${{ secrets.OAUTH_REFRESH_TOKEN }}",
           "tokenEndpoint":"https://accounts.google.com/o/oauth2/token",
           "scopes": [ "openid", "https://www.googleapis.com/auth/userinfo.email" ],
-          "expiration":"${{ secrets.OAUTH_EXPIRATION }}"
+          "expiration":${{ secrets.OAUTH_EXPIRATION }}
         }
         EOF
     - name: Publish package
