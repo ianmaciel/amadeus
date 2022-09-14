@@ -1,7 +1,7 @@
 name: amadeus
 description: Unofficial dart library for Amadeus API
 version: 0.0.1
-homepage: https://github.com/ianmaciel
+homepage: https://github.com/ianmaciel/amadeus
 
 environment:
   sdk: '>=2.18.0 <3.0.0'
