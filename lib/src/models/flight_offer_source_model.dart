@@ -20,30 +20,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import 'package:http/http.dart' as http;
+enum FlightOfferSource {
+  /// Global Distribution System
+  gds,
 
-import 'package:amadeus/amadeus.dart';
+  /// Leave Travel Concession
+  ///
+  /// LTC air booking is a type of online flights ticket booking. LTC stands for
+  /// leave travel concession which allows government employees to avail a round
+  /// trip once to their hometown and once to any other destination in India
+  /// that is ultimately paid for by the government.
+  ltc;
 
-void main() async {
-  print('Starting example script...\n');
-
-  Amadeus amadeus =
-      await Amadeus.getInstance(clientKey: 'my_key', secret: 'my_secret');
-
-  print('Authenticated!\n');
-  FlightAvailabilitiesQuery query = FlightAvailabilitiesQuery(
-    originDestinations: [
-      OriginDestination(
-        originLocationCode: 'GRU',
-        destinationLocationCode: 'IAH',
-        departureDateTime: DateTimeType(date: '2023-08-11'),
-      ),
-    ],
-    travelers: Traveler.buildTravelersList(adults: 1),
-  );
-
-  print('Requests flights availability...\n');
-  http.Response response =
-      await amadeus.apis.shopping.flightAvailabilities.post(query);
-  print(response.body);
+  @override
+  String toString() => name.toUpperCase();
+  factory FlightOfferSource.parse(String value) =>
+      FlightOfferSource.values.firstWhere((e) => e.name == value);
 }

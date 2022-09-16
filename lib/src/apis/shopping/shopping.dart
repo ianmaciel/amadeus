@@ -20,30 +20,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import 'package:http/http.dart' as http;
+import 'package:oauth2/oauth2.dart' as oauth2;
 
-import 'package:amadeus/amadeus.dart';
+import 'flight_availabilities.dart';
+export 'flight_availabilities.dart';
 
-void main() async {
-  print('Starting example script...\n');
+class ShoppingApi {
+  final oauth2.Client _client;
+  final String _baseUrl;
+  late final FlightAvailabilitiesApi flightAvailabilities;
 
-  Amadeus amadeus =
-      await Amadeus.getInstance(clientKey: 'my_key', secret: 'my_secret');
-
-  print('Authenticated!\n');
-  FlightAvailabilitiesQuery query = FlightAvailabilitiesQuery(
-    originDestinations: [
-      OriginDestination(
-        originLocationCode: 'GRU',
-        destinationLocationCode: 'IAH',
-        departureDateTime: DateTimeType(date: '2023-08-11'),
-      ),
-    ],
-    travelers: Traveler.buildTravelersList(adults: 1),
-  );
-
-  print('Requests flights availability...\n');
-  http.Response response =
-      await amadeus.apis.shopping.flightAvailabilities.post(query);
-  print(response.body);
+  static const path = '/shopping';
+  ShoppingApi(this._client, this._baseUrl) {
+    flightAvailabilities = FlightAvailabilitiesApi(_client, '$_baseUrl$path');
+  }
 }

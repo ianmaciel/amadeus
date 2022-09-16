@@ -20,30 +20,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import 'package:http/http.dart' as http;
+import 'package:json_annotation/json_annotation.dart';
 
-import 'package:amadeus/amadeus.dart';
+part 'date_time_type_model.g.dart';
 
-void main() async {
-  print('Starting example script...\n');
+@JsonSerializable(explicitToJson: true)
+class DateTimeType {
+  /// Dates are specified in the ISO 8601 YYYY-MM-DD format, e.g. 2018-12-25
+  final String date;
 
-  Amadeus amadeus =
-      await Amadeus.getInstance(clientKey: 'my_key', secret: 'my_secret');
+  /// Local time. hh:mm:ss format, e.g 10:30:00
+  @JsonKey(includeIfNull: false)
+  final String? time;
 
-  print('Authenticated!\n');
-  FlightAvailabilitiesQuery query = FlightAvailabilitiesQuery(
-    originDestinations: [
-      OriginDestination(
-        originLocationCode: 'GRU',
-        destinationLocationCode: 'IAH',
-        departureDateTime: DateTimeType(date: '2023-08-11'),
-      ),
-    ],
-    travelers: Traveler.buildTravelersList(adults: 1),
-  );
+  DateTimeType({
+    required this.date,
+    this.time,
+  });
 
-  print('Requests flights availability...\n');
-  http.Response response =
-      await amadeus.apis.shopping.flightAvailabilities.post(query);
-  print(response.body);
+  factory DateTimeType.fromJson(Map<String, dynamic> json) =>
+      _$DateTimeTypeFromJson(json);
+
+  /// Connect the generated [DateTimeTypeToJson] function to the `toJson` method.
+  Map<String, dynamic> toJson() => _$DateTimeTypeToJson(this);
 }

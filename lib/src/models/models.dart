@@ -20,30 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import 'package:http/http.dart' as http;
-
-import 'package:amadeus/amadeus.dart';
-
-void main() async {
-  print('Starting example script...\n');
-
-  Amadeus amadeus =
-      await Amadeus.getInstance(clientKey: 'my_key', secret: 'my_secret');
-
-  print('Authenticated!\n');
-  FlightAvailabilitiesQuery query = FlightAvailabilitiesQuery(
-    originDestinations: [
-      OriginDestination(
-        originLocationCode: 'GRU',
-        destinationLocationCode: 'IAH',
-        departureDateTime: DateTimeType(date: '2023-08-11'),
-      ),
-    ],
-    travelers: Traveler.buildTravelersList(adults: 1),
-  );
-
-  print('Requests flights availability...\n');
-  http.Response response =
-      await amadeus.apis.shopping.flightAvailabilities.post(query);
-  print(response.body);
-}
+export 'date_time_type_model.dart';
+export 'flight_availabilities_query.dart';
+export 'flight_offer_source_model.dart';
+export 'origin_destination_model.dart';
+export 'traveler_model.dart';

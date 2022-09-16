@@ -4,7 +4,7 @@
 
 Unofficial dart library for Amadeus API
 
-This is a WIP, and can't be used yet.
+This is a WIP, and only flight availabilities endpoint can be use (with restrictions).
 
 ## Additional information
 
