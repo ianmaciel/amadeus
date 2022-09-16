@@ -20,46 +20,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import 'package:http/http.dart' as http;
+import 'package:json_annotation/json_annotation.dart';
 
-import 'package:amadeus/amadeus.dart';
+import 'search_criteria_model.dart';
+import 'flight_filters_model.dart';
 
-void main() async {
-  print('Starting example script...\n');
+part 'extended_search_criteria_model.g.dart';
 
-  Amadeus amadeus =
-      await Amadeus.getInstance(clientKey: 'my_key', secret: 'my_secret');
+@JsonSerializable(explicitToJson: true)
+class ExtendedSearchCriteria extends SearchCriteria {
+  /// If true, closed booking classes, departed flights and cancelled flights
+  /// will also be included in the response.
+  @JsonKey(includeIfNull: false)
+  final bool? includeClosedContent;
 
-  print('Authenticated!\n');
+  /// The code of the booking class
+  /// example: A
+  @JsonKey(includeIfNull: false, name: 'class')
+  final String? bookingClass;
 
-  List<ExtendedOriginDestination> segments = [
-    ExtendedOriginDestination(
-      originLocationCode: 'MIA',
-      destinationLocationCode: 'ATL',
-      departureDateTime: DateTimeType(date: '2022-12-01'),
-    ),
-  ];
+  ExtendedSearchCriteria({
+    super.excludeAllotments,
+    required super.flightFilters,
+    this.includeClosedContent,
+    this.bookingClass,
+  });
 
-  ExtendedSearchCriteria searchCriteria = ExtendedSearchCriteria(
-    flightFilters: FlightFilters(
-      cabinRestrictions: [
-        CabinRestriction(
-          cabin: TravelClass.business,
-          originDestinationIds: [1],
-        ),
-      ],
-    ),
-    bookingClass: 'I',
-  );
-
-  FlightAvailabilitiesQuery query = FlightAvailabilitiesQuery(
-    originDestinations: segments,
-    travelers: Traveler.buildTravelersList(adults: 1),
-    searchCriteria: searchCriteria,
-  );
-
-  print('Requests flights availability...\n');
-  http.Response response =
-      await amadeus.apis.shopping.flightAvailabilities.post(query);
-  print(response.body);
+  factory ExtendedSearchCriteria.fromJson(Map<String, dynamic> json) =>
+      _$ExtendedSearchCriteriaFromJson(json);
+  @override
+  Map<String, dynamic> toJson() => _$ExtendedSearchCriteriaToJson(this);
 }

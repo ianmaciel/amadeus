@@ -22,7 +22,10 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-part 'origin_destination_model.g.dart';
+import 'date_time_type_model.dart';
+import 'origin_destination_model.dart';
+
+part 'extended_origin_destination_model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 
@@ -34,39 +37,24 @@ part 'origin_destination_model.g.dart';
 ///
 /// minItems: 1
 /// maxItems: 6
-class OriginDestination {
-  final String id, originLocationCode, destinationLocationCode;
-
-  /// List of included connections points. When an includedViaPoints option is
-  /// specified, all FlightOffer returned must at least go via this Connecting
-  /// Point.
-  /// Currently, only the locations defined in IATA are supported.
-  /// Used only by the AMADEUS provider.
-  ///   minItems: 1
-  ///   maxItems: 2
-  ///   example: `[ 'MRS' ]`
+class ExtendedOriginDestination extends OriginDestination {
   @JsonKey(includeIfNull: false)
-  List<String>? includedConnectionPoints;
-
-  /// List of excluded connections points. Any FlightOffer with these
-  /// connections points will be present in response.
-  /// Currently, only the locations defined in IATA are supported.
-  /// Used only by the AMADEUS provider
-  ///   minItems: 1
-  ///   maxItems: 3
-  ///   example: `[ 'MRS' ]`
+  DateTimeType? departureDateTime;
   @JsonKey(includeIfNull: false)
-  List<String>? excludedConnectionPoints;
+  DateTimeType? arrivalDateTime;
 
-  OriginDestination({
-    this.id = '1',
-    required this.originLocationCode,
-    required this.destinationLocationCode,
-    this.includedConnectionPoints,
-    this.excludedConnectionPoints,
+  ExtendedOriginDestination({
+    super.id = '1',
+    required super.originLocationCode,
+    required super.destinationLocationCode,
+    super.includedConnectionPoints,
+    super.excludedConnectionPoints,
+    this.departureDateTime,
+    this.arrivalDateTime,
   });
 
-  factory OriginDestination.fromJson(Map<String, dynamic> json) =>
-      _$OriginDestinationFromJson(json);
-  Map<String, dynamic> toJson() => _$OriginDestinationToJson(this);
+  factory ExtendedOriginDestination.fromJson(Map<String, dynamic> json) =>
+      _$ExtendedOriginDestinationFromJson(json);
+  @override
+  Map<String, dynamic> toJson() => _$ExtendedOriginDestinationToJson(this);
 }

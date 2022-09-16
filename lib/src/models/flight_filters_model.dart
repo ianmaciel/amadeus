@@ -20,46 +20,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import 'package:http/http.dart' as http;
+import 'package:json_annotation/json_annotation.dart';
 
-import 'package:amadeus/amadeus.dart';
+import 'cabin_restriction_model.dart';
+import 'carrier_restrictions_model.dart';
+import 'connection_restriction_model.dart';
 
-void main() async {
-  print('Starting example script...\n');
+part 'flight_filters_model.g.dart';
 
-  Amadeus amadeus =
-      await Amadeus.getInstance(clientKey: 'my_key', secret: 'my_secret');
+/// Restriction towards carriers.
+@JsonSerializable(explicitToJson: true)
+class FlightFilters {
+  /// Restriction towards carriers.
+  @JsonKey(includeIfNull: false)
+  final CarrierRestrictions? carrierRestrictions;
 
-  print('Authenticated!\n');
+  /// Restriction towards cabins.
+  ///   * minItems: 1
+  ///   * maxItems: 6
+  @JsonKey(includeIfNull: false)
+  final List<CabinRestriction>? cabinRestrictions;
 
-  List<ExtendedOriginDestination> segments = [
-    ExtendedOriginDestination(
-      originLocationCode: 'MIA',
-      destinationLocationCode: 'ATL',
-      departureDateTime: DateTimeType(date: '2022-12-01'),
-    ),
-  ];
+  /// Restriction towards number of connections.
+  @JsonKey(includeIfNull: false)
+  final ConnectionRestriction? connectionRestriction;
 
-  ExtendedSearchCriteria searchCriteria = ExtendedSearchCriteria(
-    flightFilters: FlightFilters(
-      cabinRestrictions: [
-        CabinRestriction(
-          cabin: TravelClass.business,
-          originDestinationIds: [1],
-        ),
-      ],
-    ),
-    bookingClass: 'I',
-  );
+  FlightFilters({
+    this.carrierRestrictions,
+    this.cabinRestrictions,
+    this.connectionRestriction,
+  });
 
-  FlightAvailabilitiesQuery query = FlightAvailabilitiesQuery(
-    originDestinations: segments,
-    travelers: Traveler.buildTravelersList(adults: 1),
-    searchCriteria: searchCriteria,
-  );
-
-  print('Requests flights availability...\n');
-  http.Response response =
-      await amadeus.apis.shopping.flightAvailabilities.post(query);
-  print(response.body);
+  factory FlightFilters.fromJson(Map<String, dynamic> json) =>
+      _$FlightFiltersFromJson(json);
+  Map<String, dynamic> toJson() => _$FlightFiltersToJson(this);
 }

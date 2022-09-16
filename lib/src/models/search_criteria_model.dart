@@ -20,46 +20,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import 'package:http/http.dart' as http;
+import 'package:json_annotation/json_annotation.dart';
 
-import 'package:amadeus/amadeus.dart';
+import 'flight_filters_model.dart';
 
-void main() async {
-  print('Starting example script...\n');
+part 'search_criteria_model.g.dart';
 
-  Amadeus amadeus =
-      await Amadeus.getInstance(clientKey: 'my_key', secret: 'my_secret');
+@JsonSerializable(explicitToJson: true)
+class SearchCriteria {
+  /// This option allows to exclude the isAllotment flag associated to a booking
+  /// class in the search response when it exist.
+  @JsonKey(includeIfNull: false)
+  final bool? excludeAllotments;
 
-  print('Authenticated!\n');
+  /// Restriction towards flights.
+  final FlightFilters flightFilters;
 
-  List<ExtendedOriginDestination> segments = [
-    ExtendedOriginDestination(
-      originLocationCode: 'MIA',
-      destinationLocationCode: 'ATL',
-      departureDateTime: DateTimeType(date: '2022-12-01'),
-    ),
-  ];
+  SearchCriteria({
+    this.excludeAllotments,
+    required this.flightFilters,
+  });
 
-  ExtendedSearchCriteria searchCriteria = ExtendedSearchCriteria(
-    flightFilters: FlightFilters(
-      cabinRestrictions: [
-        CabinRestriction(
-          cabin: TravelClass.business,
-          originDestinationIds: [1],
-        ),
-      ],
-    ),
-    bookingClass: 'I',
-  );
-
-  FlightAvailabilitiesQuery query = FlightAvailabilitiesQuery(
-    originDestinations: segments,
-    travelers: Traveler.buildTravelersList(adults: 1),
-    searchCriteria: searchCriteria,
-  );
-
-  print('Requests flights availability...\n');
-  http.Response response =
-      await amadeus.apis.shopping.flightAvailabilities.post(query);
-  print(response.body);
+  factory SearchCriteria.fromJson(Map<String, dynamic> json) =>
+      _$SearchCriteriaFromJson(json);
+  Map<String, dynamic> toJson() => _$SearchCriteriaToJson(this);
 }

@@ -20,46 +20,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import 'package:http/http.dart' as http;
+import 'package:json_annotation/json_annotation.dart';
 
-import 'package:amadeus/amadeus.dart';
+part 'connection_restriction_model.g.dart';
 
-void main() async {
-  print('Starting example script...\n');
+/// Restriction towards number of connections.
+@JsonSerializable(explicitToJson: true)
+class ConnectionRestriction {
+  /// The maximal number of connections for each itinerary
+  /// Value can be 0, 1 or 2.
+  final int maxNumberOfConnections;
 
-  Amadeus amadeus =
-      await Amadeus.getInstance(clientKey: 'my_key', secret: 'my_secret');
+  /// Allow to change airport during connection.
+  final bool airportChangeAllowed;
 
-  print('Authenticated!\n');
+  /// This option allows the single segment to have one or more intermediate
+  /// stops (technical stops).
+  final bool technicalStopsAllowed;
 
-  List<ExtendedOriginDestination> segments = [
-    ExtendedOriginDestination(
-      originLocationCode: 'MIA',
-      destinationLocationCode: 'ATL',
-      departureDateTime: DateTimeType(date: '2022-12-01'),
-    ),
-  ];
+  ConnectionRestriction({
+    required this.maxNumberOfConnections,
+    required this.airportChangeAllowed,
+    required this.technicalStopsAllowed,
+  });
 
-  ExtendedSearchCriteria searchCriteria = ExtendedSearchCriteria(
-    flightFilters: FlightFilters(
-      cabinRestrictions: [
-        CabinRestriction(
-          cabin: TravelClass.business,
-          originDestinationIds: [1],
-        ),
-      ],
-    ),
-    bookingClass: 'I',
-  );
-
-  FlightAvailabilitiesQuery query = FlightAvailabilitiesQuery(
-    originDestinations: segments,
-    travelers: Traveler.buildTravelersList(adults: 1),
-    searchCriteria: searchCriteria,
-  );
-
-  print('Requests flights availability...\n');
-  http.Response response =
-      await amadeus.apis.shopping.flightAvailabilities.post(query);
-  print(response.body);
+  factory ConnectionRestriction.fromJson(Map<String, dynamic> json) =>
+      _$ConnectionRestrictionFromJson(json);
+  Map<String, dynamic> toJson() => _$ConnectionRestrictionToJson(this);
 }

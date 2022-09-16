@@ -20,19 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import 'dart:convert';
-
 import 'package:json_annotation/json_annotation.dart';
 
-import 'origin_destination_model.dart';
-import 'flight_offer_source_model.dart';
-import 'traveler_model.dart';
+import 'models.dart';
 
 part 'flight_availabilities_query.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class FlightAvailabilitiesQuery {
-  final List<OriginDestination> originDestinations;
+  final List<ExtendedOriginDestination> originDestinations;
   final List<Traveler> travelers;
 
   @JsonKey(
@@ -52,26 +48,23 @@ class FlightAvailabilitiesQuery {
   /// [ GDS ]
   /// GDS : Full service carriers
   final List<FlightOfferSource> flightOfferSources;
-  // TODO: searchCriteria
+
+  @JsonKey(includeIfNull: false)
+  final ExtendedSearchCriteria? searchCriteria;
 
   FlightAvailabilitiesQuery({
     required this.originDestinations,
     required this.travelers,
     this.flightOfferSources = const [FlightOfferSource.gds],
+    this.searchCriteria,
   });
 
-  /// Connect the generated [_FlightAvailabilitiesQueryFromJson] function to the `fromJson`
-  /// factory.
   factory FlightAvailabilitiesQuery.fromJson(Map<String, dynamic> json) =>
       _$FlightAvailabilitiesQueryFromJson(json);
-
-  /// Connect the generated [_FlightAvailabilitiesQueryToJson] function to the `toJson` method.
   Map<String, dynamic> toJson() => _$FlightAvailabilitiesQueryToJson(this);
 }
 
 List<String> _flightOfferSourceToJson(List<FlightOfferSource> sourceList) =>
     sourceList.map((item) => item.toString()).toList();
-//List<FlightOfferSource> _flightOfferSourceFromJson(List<String> sourceList) =>
-//    sourceList.map((item) => FlightOfferSource.parse(item)).toList();
 List<FlightOfferSource> _flightOfferSourceFromJson(String sourceList) =>
     [FlightOfferSource.parse(sourceList)];

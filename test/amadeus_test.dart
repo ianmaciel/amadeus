@@ -20,14 +20,11 @@ void main() {
   MockClient mockedClient = MockClient();
 
   group('Amadeus', () {
-    Future<http.Response> mockedPost = mockedClient.post(
+    when(mockedClient.post(
       any,
       body: captureAnyNamed('body'),
       headers: anyNamed('headers'),
-    );
-
-    when(mockedPost)
-        .thenAnswer((_) async => http.Response(fixtures.responseFixture, 200));
+    )).thenAnswer((_) async => http.Response(fixtures.responseFixture, 200));
 
     test('should receive flight availability', () async {
       final Amadeus amadeus = await Amadeus.getInstance(
@@ -36,7 +33,7 @@ void main() {
         customClient: mockedClient,
       );
 
-      OriginDestination originDestination = OriginDestination(
+      ExtendedOriginDestination originDestination = ExtendedOriginDestination(
           id: '1',
           originLocationCode: 'ATH',
           destinationLocationCode: 'MAD',
@@ -52,10 +49,64 @@ void main() {
       http.Response httpResponse =
           await amadeus.apis.shopping.flightAvailabilities.post(query);
 
-      String captured = verify(mockedPost).captured.first;
+      String captured = verify(mockedClient.post(
+        any,
+        body: captureAnyNamed('body'),
+        headers: anyNamed('headers'),
+      )).captured.first;
 
       const String expectedBody =
           '{"originDestinations":[{"id":"1","originLocationCode":"ATH","destinationLocationCode":"MAD","departureDateTime":{"date":"2022-12-20"}}],"travelers":[{"id":"1","travelerType":"ADULT"}],"sources":["GDS"]}';
+      expect(captured, expectedBody);
+
+      Map<String, dynamic> response = jsonDecode(httpResponse.body);
+      expect(response['meta']['count'], 52);
+      expect(response['data'][0]['type'], 'flight-availability');
+      expect(response['data'][0]['duration'], 'PT5H35M');
+    });
+    test('should filter flight availability', () async {
+      final Amadeus amadeus = await Amadeus.getInstance(
+        clientKey: "my_client_id",
+        secret: "my_secret",
+        customClient: mockedClient,
+      );
+
+      ExtendedOriginDestination originDestination = ExtendedOriginDestination(
+          id: '1',
+          originLocationCode: 'ATH',
+          destinationLocationCode: 'MAD',
+          departureDateTime: DateTimeType(date: '2022-12-20'));
+      Traveler traveler = Traveler(travelerType: TravelerType.adult, id: '1');
+
+      FlightAvailabilitiesQuery flightAvailabilitiesQuery =
+          FlightAvailabilitiesQuery(
+        originDestinations: [originDestination],
+        travelers: [traveler],
+        flightOfferSources: const [FlightOfferSource.gds],
+        searchCriteria: ExtendedSearchCriteria(
+          flightFilters: FlightFilters(
+            cabinRestrictions: [
+              CabinRestriction(
+                cabin: TravelClass.business,
+                originDestinationIds: [1],
+              ),
+            ],
+          ),
+        ),
+      );
+
+      http.Response httpResponse = await amadeus
+          .apis.shopping.flightAvailabilities
+          .post(flightAvailabilitiesQuery);
+
+      String captured = verify(mockedClient.post(
+        any,
+        body: captureAnyNamed('body'),
+        headers: anyNamed('headers'),
+      )).captured.first;
+
+      const String expectedBody =
+          '{"originDestinations":[{"id":"1","originLocationCode":"ATH","destinationLocationCode":"MAD","departureDateTime":{"date":"2022-12-20"}}],"travelers":[{"id":"1","travelerType":"ADULT"}],"sources":["GDS"],"searchCriteria":{"flightFilters":{"cabinRestrictions":[{"cabin":"BUSINESS","originDestinationIds":[1]}]}}}';
       expect(captured, expectedBody);
 
       Map<String, dynamic> response = jsonDecode(httpResponse.body);

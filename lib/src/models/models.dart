@@ -20,8 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+export 'cabin_restriction_model.dart';
+export 'carrier_restrictions_model.dart';
+export 'connection_restriction_model.dart';
 export 'date_time_type_model.dart';
 export 'flight_availabilities_query.dart';
+export 'flight_filters_model.dart';
 export 'flight_offer_source_model.dart';
 export 'origin_destination_model.dart';
+export 'extended_origin_destination_model.dart';
+export 'search_criteria_model.dart';
+export 'extended_search_criteria_model.dart';
 export 'traveler_model.dart';
